@@ -162,17 +162,43 @@ function resetGesture() {
 // Utility: Detect if element can scroll horizontally
 // ---------------------------------------------------------------------------
 
-function isHorizontallyScrollable(el) {
+function isRealHorizontalScrollContainer(el) {
+    if (!el) return false;
+
+    // Content bigger than container?
+    const overflowing = el.scrollWidth > el.clientWidth;
+
+    if (!overflowing) return false;
+
+    //Test if we can scroll programmatically
+    const prev = el.scrollLeft;
+    el.scrollLeft += 1;
+    const canScroll = el.scrollLeft !== prev;
+    el.scrollLeft = prev;
+
+    if (!canScroll) return false;
+
+    // Check CSS overflow-x property
+    const overflowX = getComputedStyle(el).overflowX;
+
+    // overflow-x not hidden -> container can scroll horizontally
+    if (overflowX !== "hidden") {
+        return true;
+    }
+
+    // overflow-x hidden but canScroll true -> real container
+    return true;
+}
+
+function shouldBlockSwipe(el) {
     let cur = el;
     while (cur && cur !== document.documentElement) {
-        const style = getComputedStyle(cur);
-        if ((style.overflowX === "auto" || style.overflowX === "scroll") &&
-            cur.scrollWidth > cur.clientWidth) {
-            return true;
+        if (isRealHorizontalScrollContainer(cur)) {
+            return true; // block gesture swipe
         }
         cur = cur.parentElement;
     }
-    return false;
+    return false; // allow swipe
 }
 
 
@@ -188,8 +214,10 @@ window.addEventListener(
         // Horizontal dominance check
         if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
 
-        // Ignore elements with horizontal scrolling
-        if (isHorizontallyScrollable(e.target)) return;
+        if (shouldBlockSwipe(e.target)) {
+            // Detected real horizontal scroll container in path -> block gesture
+            return;
+        }
 
         // Begin gesture
         if (!gestureActive) {
@@ -205,7 +233,7 @@ window.addEventListener(
         // Determine initial direction once
         if (!primaryDirection && Math.abs(cumulative) > 6) {
             primarySign = Math.sign(cumulative) || 1;
-            const mapped = primarySign > 0 ? "back" : "forward";
+            const mapped = primarySign > 0 ? "forward" : "back";
 
             primaryDirection = invertDirection
                 ? mapped === "back" ? "forward" : "back"
