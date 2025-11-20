@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Trackpad Swipe Navigation</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+
+<body>
+    <h3>Trackpad Swipe Navigation</h3>
+
+    <!-- Toggle Button -->
+    <button id="toggleBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <line x1="12" y1="2" x2="12" y2="12"></line>
+            <path d="M5.5 7A9 9 0 1 0 18.5 7"></path>
+        </svg>
+        <span id="toggleText">Loading...</span>
+    </button>
+
+    <!-- Invert Direction -->
+    <div class="option-row">
+        <span>Invert Direction</span>
+        <label class="switch">
+            <input type="checkbox" id="invertChk">
+            <span class="slider"></span>
+        </label>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+
+</html>

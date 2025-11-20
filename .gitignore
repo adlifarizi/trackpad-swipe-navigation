@@ -1,0 +1,25 @@
+# macOS junk
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux temp files
+*~
+
+# Logs
+*.log
+
+# Zip packages / build artifacts
+*.zip
+dist/
+build/
+
+# Editor folders
+.vscode/
+.idea/
+
+# Node modules
+node_modules/
+
+# Chrome extension local storage
+chrome-extension://*
