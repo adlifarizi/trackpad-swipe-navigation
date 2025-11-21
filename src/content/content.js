@@ -170,11 +170,20 @@ function isRealHorizontalScrollContainer(el) {
 
     if (!overflowing) return false;
 
-    //Test if we can scroll programmatically
+    // Test if we can scroll programmatically
     const prev = el.scrollLeft;
+
+    // Try scrolling forward
     el.scrollLeft += 1;
-    const canScroll = el.scrollLeft !== prev;
+    let canScroll = el.scrollLeft !== prev;
     el.scrollLeft = prev;
+
+    // If forward scroll didn't work, try backward (we might be at the end)
+    if (!canScroll) {
+        el.scrollLeft -= 1;
+        canScroll = el.scrollLeft !== prev;
+        el.scrollLeft = prev;
+    }
 
     if (!canScroll) return false;
 
@@ -193,6 +202,10 @@ function isRealHorizontalScrollContainer(el) {
 function shouldBlockSwipe(el) {
     let cur = el;
     while (cur && cur !== document.documentElement) {
+        // Block swipe on canvas elements (e.g. Figma, games)
+        if (cur.tagName === "CANVAS") {
+            return true;
+        }
         if (isRealHorizontalScrollContainer(cur)) {
             return true; // block gesture swipe
         }
@@ -212,7 +225,7 @@ window.addEventListener(
         if (!enabled) return;
 
         // Horizontal dominance check
-        if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+        if (Math.abs(e.deltaX) <= Math.abs(e.deltaY) * 1.5) return;
 
         if (shouldBlockSwipe(e.target)) {
             // Detected real horizontal scroll container in path -> block gesture
