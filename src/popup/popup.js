@@ -79,3 +79,48 @@ if (invertChk) {
         });
     });
 }
+
+/* -----------------------------------------
+   SLIDERS (SENSITIVITY & THRESHOLD)
+----------------------------------------- */
+
+const sensitivityRange = document.getElementById("sensitivityRange");
+const sensitivityVal = document.getElementById("sensitivityVal");
+
+const thresholdRange = document.getElementById("thresholdRange");
+const thresholdVal = document.getElementById("thresholdVal");
+
+// Load initial values
+chrome.storage.sync.get(["sensitivity", "threshold"], (res) => {
+    if (sensitivityRange) {
+        const val = res.sensitivity ?? 10;
+        sensitivityRange.value = val;
+        sensitivityVal.textContent = val;
+    }
+
+    if (thresholdRange) {
+        const val = res.threshold ?? 300;
+        thresholdRange.value = val;
+        thresholdVal.textContent = val + "px";
+    }
+});
+
+// Sensitivity Listener
+if (sensitivityRange) {
+    sensitivityRange.addEventListener("input", () => {
+        const val = parseInt(sensitivityRange.value, 10);
+        sensitivityVal.textContent = val;
+        chrome.storage.sync.set({ sensitivity: val });
+        broadcast({ type: "setSensitivity", value: val });
+    });
+}
+
+// Threshold Listener
+if (thresholdRange) {
+    thresholdRange.addEventListener("input", () => {
+        const val = parseInt(thresholdRange.value, 10);
+        thresholdVal.textContent = val + "px";
+        chrome.storage.sync.set({ threshold: val });
+        broadcast({ type: "setThreshold", value: val });
+    });
+}

@@ -25,6 +25,8 @@ Perfect if:
 * Swipe left => **Back**
 * Swipe right => **Forward**
 * Optional **Invert Direction**
+* **Adjustable Sensitivity** (Control how easily swipes are detected)
+* **Adjustable Activation Threshold** (Control swipe distance required)
 * **Enable/Disable** anytime from the popup
 * Lightweight (no frameworks, no libraries)
 * 100% local, *no tracking, no external requests*
@@ -79,20 +81,23 @@ If someone wants to help port this to Firefox or Safari, PRs are welcome!
   * Fallback to `history.back()` / `history.forward()` if needed
 
 * `popup.html / popup.js`
-  UI to toggle the extension & invert direction.
+  UI to toggle the extension, invert direction, and adjust sensitivity/threshold.
   Settings stored via `chrome.storage.sync`.
 
 ---
 
 ## Issues & Contributions
 
-If something doesn’t work on your device (different touchpad driver, DE, browser, etc.), feel free to:
+If something doesn’t work on your device (different touchpad driver, DE, browser, etc.), or probably doesn't work in some website, feel free to:
 
 - **Open an Issue**
 - **Submit a Pull Request**
 - **Fork and extend** (Firefox/Safari port welcome!)
 
 Everything here is intentionally simple for others to modify easily.
+
+> [!IMPORTANT]
+> The extension won't work on "New Tab" or any other Chrome-specific pages due to security restrictions. That’s just how all extensions work
 
 ---
 

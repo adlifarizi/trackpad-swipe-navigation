@@ -11,7 +11,8 @@
 
 let enabled = true;
 let cumulative = 0;
-const threshold = 300;           // Required horizontal distance (px)
+let threshold = 300;             // Required horizontal distance (px)
+let minSwipeDistance = 10;       // Min distance to start gesture
 let gestureEndTimer = null;
 const gestureEndDelay = 100;     // Time without wheel events -> gesture ends
 
@@ -22,10 +23,12 @@ let armed = false;
 
 let invertDirection = false;
 
-// Load initial inverted-direction state
+// Load initial settings
 if (chrome.storage?.sync) {
-    chrome.storage.sync.get(["invert"], (res) => {
+    chrome.storage.sync.get(["invert", "sensitivity", "threshold"], (res) => {
         invertDirection = !!res.invert;
+        if (res.sensitivity) minSwipeDistance = res.sensitivity;
+        if (res.threshold) threshold = res.threshold;
     });
 }
 
@@ -41,6 +44,10 @@ chrome.runtime.onMessage.addListener((msg) => {
         enabled = msg.enabled;
     } else if (msg.type === "setInvert") {
         invertDirection = !!msg.invert;
+    } else if (msg.type === "setSensitivity") {
+        minSwipeDistance = msg.value;
+    } else if (msg.type === "setThreshold") {
+        threshold = msg.value;
     }
 });
 
@@ -110,7 +117,7 @@ function updateOverlayProgress(direction, fraction) {
     const vw = Math.max(document.documentElement.clientWidth, window.innerWidth);
     const clamped = Math.max(0, Math.min(1, fraction));
 
-    const edge = direction === "back" ? vw * 0.06 : vw * 0.94;
+    const edge = direction === "back" ? vw * 0.02 : vw * 0.98 - 56;
     const shift = 40 * clamped;
     const x = direction === "back" ? edge + shift : edge - shift;
 
@@ -225,7 +232,7 @@ window.addEventListener(
         if (!enabled) return;
 
         // Horizontal dominance check
-        if (Math.abs(e.deltaX) <= Math.abs(e.deltaY) * 1.5) return;
+        if (Math.abs(e.deltaX) <= Math.abs(e.deltaY) * 1.7) return;
 
         if (shouldBlockSwipe(e.target)) {
             // Detected real horizontal scroll container in path -> block gesture
@@ -244,7 +251,7 @@ window.addEventListener(
         cumulative += e.deltaX;
 
         // Determine initial direction once
-        if (!primaryDirection && Math.abs(cumulative) > 6) {
+        if (!primaryDirection && Math.abs(cumulative) > minSwipeDistance) {
             primarySign = Math.sign(cumulative) || 1;
             const mapped = primarySign > 0 ? "forward" : "back";
 
@@ -274,7 +281,7 @@ window.addEventListener(
                         if (chrome.runtime.lastError) {
                             console.error("Navigation error:", chrome.runtime.lastError);
                         }
-                        setTimeout(resetGesture, 120);
+                        setTimeout(resetGesture, 200);
                     });
                 } catch (e) {
                     // Context invalidated (extension reloaded/updated)
