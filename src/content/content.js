@@ -13,7 +13,7 @@ let enabled = true;
 let cumulative = 0;
 const threshold = 300;           // Required horizontal distance (px)
 let gestureEndTimer = null;
-const gestureEndDelay = 100;     // Time without wheel events → gesture ends
+const gestureEndDelay = 100;     // Time without wheel events -> gesture ends
 
 let gestureActive = false;
 let primaryDirection = null;     // "back" or "forward"
@@ -269,12 +269,18 @@ window.addEventListener(
 
         gestureEndTimer = setTimeout(() => {
             if (armed && primaryDirection) {
-                chrome.runtime.sendMessage({ action: primaryDirection }, () => {
-                    if (chrome.runtime.lastError) {
-                        console.error("Navigation error:", chrome.runtime.lastError);
-                    }
-                    setTimeout(resetGesture, 120);
-                });
+                try {
+                    chrome.runtime.sendMessage({ action: primaryDirection }, () => {
+                        if (chrome.runtime.lastError) {
+                            console.error("Navigation error:", chrome.runtime.lastError);
+                        }
+                        setTimeout(resetGesture, 120);
+                    });
+                } catch (e) {
+                    // Context invalidated (extension reloaded/updated)
+                    console.warn("Swipe Navigation: Context invalidated, resetting UI.");
+                    resetGesture();
+                }
             } else {
                 resetGesture();
             }
