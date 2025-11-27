@@ -98,6 +98,8 @@ function createOverlay() {
     svg.setAttribute("width", "48");
     svg.setAttribute("height", "48");
     svg.style.transition = "transform 120ms ease";
+    // Add white drop-shadow for visibility on dark backgrounds
+    svg.style.filter = "drop-shadow(0 0 1px white) drop-shadow(0 0 3px rgba(255,255,255,0.8))";
 
     const path = document.createElementNS(ns, "path");
     path.setAttribute("fill", "black");
